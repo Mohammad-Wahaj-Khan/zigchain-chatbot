@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>ZigChatBot</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #121212;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      overflow: hidden;
+      transition: background-color 0.3s;
+    }
+
+    .light {
+      background: #f5f5f5;
+      color: #000;
+    }
+
+    .chat-container {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      padding: 20px;
+    }
+
+    .messages {
+      flex: 1;
+      background: #1e1e1e;
+      padding: 10px;
+      border-radius: 10px;
+      overflow-y: auto;
+    }
+
+    .light .messages {
+      background: #fff;
+      color: #000;
+    }
+
+    .input-area {
+      display: flex;
+      margin-top: 10px;
+    }
+
+    input {
+      flex: 1;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: 1px solid #333;
+    }
+
+    .light input {
+      border-color: #ddd;
+    }
+
+    button {
+      cursor: pointer;
+      padding: 10px 15px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+      background: #333;
+      color: #fff;
+    }
+
+    .light button {
+      background: #ddd;
+      color: #000;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .buttons button {
+      flex: 1 1 20%;
+      min-width: 80px;
+    }
+
+    .typing-effect {
+      display: inline-block;
+      white-space: pre;
+    }
+
+    .cursor {
+      display: inline-block;
+      background: currentColor;
+      width: 2px;
+      animation: blink 0.7s step-end infinite;
+    }
+
+    @keyframes blink {
+      50% {
+        opacity: 0;
+      }
+    }
+
+    .theme-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 35px;
+      height: 35px;
+      background: #333;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .light .theme-toggle {
+      background: #ddd;
+    }
+
+    .theme-toggle svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+      display: none;
+    }
+
+    .theme-toggle .moon {
+      display: inline-block;
+    }
+
+    .light .theme-toggle .moon {
+      display: none;
+    }
+
+    .light .theme-toggle .sun {
+      display: inline-block;
+    }
+
+    #swapBox {
+      display: none;
+      background: #222;
+      padding: 10px;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+
+    .light #swapBox {
+      background: #eee;
+      color: #000;
+    }
+
+    #swapBox select,
+    #swapBox input {
+      width: 100%;
+      margin: 5px 0;
+      padding: 8px;
+      border-radius: 4px;
+      border: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="chat-container">
+    <h2>👋 ZigChatBot</h2>
+    <div class="messages" id="messages"></div>
+    <div class="input-area">
+      <input id="userInput" placeholder="Type message..." />
+      <button onclick="sendMessage()">Send</button>
+    </div>
+    <div style="margin:10px 0;">
+      <button id="connectBtn" onclick="connectWallet()">🔗 Connect Wallet</button>
+      <span id="walletAddr" style="margin-left:10px;"></span>
+      <button id="disconnectBtn" onclick="disconnectWallet()" style="display:none;">❌ Disconnect</button>
+    </div>
+    <div id="swapBox">
+      <label>From:</label>
+      <select id="fromToken">
+        <option>ZIG</option>
+        <option>ORO</option>
+        <option>BEE</option>
+        <option>STZIG</option>
+        <option>FOMOFEAST</option>
+        <option>PUMP</option>
+        <option>CULTCOIN</option>
+        <option>NFA</option>
+        <option>ZMZIG</option>
+      </select>
+      <label>To:</label>
+      <select id="toToken">
+        <option>ZIG</option>
+        <option>ORO</option>
+        <option>BEE</option>
+        <option>STZIG</option>
+        <option>FOMOFEAST</option>
+        <option>PUMP</option>
+        <option>CULTCOIN</option>
+        <option>NFA</option>
+        <option>ZMZIG</option>
+      </select>
+      <label>Amount:</label>
+      <input type="number" id="swapAmount" placeholder="e.g., 0.01" />
+      <button onclick="submitSwap()">🚀 Swap Now</button>
+    </div>
+    <div class="buttons">
+
+      <button onclick="quick('quote')">💬 Quote</button>
+      <!-- <button onclick="quick('emoji')">🎲 Emoji</button> -->
+      <button onclick="quick('learn')">📚 Learn</button>
+      <button onclick="quick('real swap')">🔄 Swap</button>
+      <button onclick="quick('time')">⏰ Time</button>
+      <button onclick="quick('stats')">📊 Stats</button>
+      <!-- <button onclick="quick('history')">🧾 History</button> -->
+    </div>
+  </div>
+
+  <div class="theme-toggle" onclick="toggleTheme()">
+    <svg class="moon" viewBox="0 0 24 24">
+      <path d="M21 12.79A9 9 0 0112.21 3a7 7 0 000 14A9 9 0 0121 12.79z" />
+    </svg>
+    <svg class="sun" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="5" />
+      <line x1="12" y1="1" x2="12" y2="3" />
+      <line x1="12" y1="21" x2="12" y2="23" />
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+      <line x1="1" y1="12" x2="3" y2="12" />
+      <line x1="21" y1="12" x2="23" y2="12" />
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+    </svg>
+  </div>
+  <div id="loader" style="
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 18px;
+    background: rgba(0,0,0,0.7);
+    padding: 20px;
+    border-radius: 10px;
+    z-index: 9999;">
+    🔄 Processing transaction...
+  </div>
+
+  <!-- <script src="https://cdn.jsdelivr.net/npm/@cosmjs/stargate@0.36.2/build/stargate.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@cosmjs/cosmwasm-stargate@0.36.2/build/cosmwasm-stargate.min.js"></script>
+   -->
+
+  <script type="module">
+    import { SigningCosmWasmClient } from "https://esm.run/@cosmjs/cosmwasm-stargate";
+    window.SigningCosmWasmClient = SigningCosmWasmClient;
+  </script>
+
+  <script>
+    const input = document.getElementById("userInput");
+    const messages = document.getElementById("messages");
+
+    const sendS = new Audio("./keyboard.mp3");
+    const replyS = new Audio("./keyboard.mp3");
+    const typeS = new Audio("./typing8s.mp3");
+    typeS.loop = false;
+
+    function appendMessage(from, text, isTyping = false) {
+      const div = document.createElement("div");
+      div.innerHTML = `<strong>${from}:</strong> <span class="typing-effect">${isTyping ? '<span class="cursor"></span>' : text}</span>`;
+      messages.appendChild(div);
+      messages.scrollTop = messages.scrollHeight;
+      return div.querySelector(".typing-effect");
+    }
+
+    function typeMessage(span, text) {
+      let i = 0;
+      typeS.pause();
+      typeS.currentTime = 0;
+      typeS.play().catch(() => { });
+      const interval = setInterval(() => {
+        if (i < text.length) {
+          span.innerHTML = text.slice(0, i + 1) + '<span class="cursor"></span>';
+          messages.scrollTop = messages.scrollHeight;
+          i++;
+        } else {
+          clearInterval(interval);
+          typeS.pause();
+          typeS.currentTime = 0;
+          span.innerText = text;
+          replyS.currentTime = 0;
+          replyS.play().catch(() => { });
+        }
+      }, 60);
+    }
+
+    function sendMessage() {
+      const msg = input.value.trim();
+      if (!msg) return;
+      appendMessage("You", msg);
+      sendS.currentTime = 0;
+      sendS.play().catch(() => { });
+      input.value = "";
+      const botSpan = appendMessage("Bot", "", true);
+
+      fetch("/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: msg })
+      })
+        .then(r => r.json())
+        .then(d => setTimeout(() => typeMessage(botSpan, d.reply), 200))
+        .catch(() => {
+          typeS.pause();
+          typeS.currentTime = 0;
+          appendMessage("Bot", "❌ Error occurred.");
+        });
+    }
+
+    let walletAddress = "";
+    let chainId = "zig-test-2"; // ZigChain testnet
+
+    async function connectWallet() {
+      if (!window.keplr) {
+        alert("Please install Keplr Wallet extension!");
+        return;
+      }
+      try {
+        await window.keplr.enable(chainId);
+        const offlineSigner = window.getOfflineSigner(chainId);
+        const accounts = await offlineSigner.getAccounts();
+        walletAddress = accounts[0].address;
+        document.getElementById("walletAddr").innerText = "Connected: " + walletAddress;
+        document.getElementById("connectBtn").style.display = "none";
+        document.getElementById("disconnectBtn").style.display = "inline-block";
+      } catch (e) {
+        alert("Wallet connection failed: " + e.message);
+      }
+    }
+
+    function disconnectWallet() {
+      walletAddress = "";
+      document.getElementById("walletAddr").innerText = "";
+      document.getElementById("connectBtn").style.display = "inline-block";
+      document.getElementById("disconnectBtn").style.display = "none";
+    }
+
+    function quick(txt) {
+      input.value = txt;
+      if (txt.includes("swap")) {
+        document.getElementById("swapBox").style.display = "block";
+      } else {
+        document.getElementById("swapBox").style.display = "none";
+        sendMessage();
+      }
+    }
+
+    function submitSwap() {
+      const from = document.getElementById("fromToken").value;
+      const to = document.getElementById("toToken").value;
+      const amt = document.getElementById("swapAmount").value;
+      if (!walletAddress) {
+        alert("Please connect your wallet first!");
+        return;
+      }
+      if (!window.SigningCosmWasmClient) {
+        alert("CosmJS not loaded. Please refresh the page.");
+        return;
+      }
+      input.value = `swap from ${from} to ${to} amount ${amt} address ${walletAddress}`;
+      document.getElementById("swapBox").style.display = "none";
+      sendMessage();
+      swapWithKeplr(from, to, amt);
+    }
+
+    async function swapWithKeplr(from, to, amt) {
+      const loader = document.getElementById("loader");
+      loader.style.display = "block"; // Show loader
+
+      if (!window.keplr) {
+        loader.style.display = "none";
+        appendMessage("Bot", "❌ Keplr not found.");
+        return;
+      }
+      if (!window.SigningCosmWasmClient) {
+        loader.style.display = "none";
+        appendMessage("Bot", "❌ CosmJS not found. Check your script src.");
+        return;
+      }
+      try {
+        await window.keplr.enable(chainId);
+        const offlineSigner = window.getOfflineSigner(chainId);
+        const rpc = "https://public-zigchain-testnet-rpc.numia.xyz/";
+        const client = await window.SigningCosmWasmClient.connectWithSigner(rpc, offlineSigner, {
+          gasPrice: "0.025uzig"
+        });
+
+        const tokenMap = {
+          ZIG: "uzig",
+          ORO: "zig15jqg0hmp9n06q0as7uk3x9xkwr9k3r7yh4ww2uc0hek8zlryrgmsamk4qg",
+          BEE: "zig1r50m5lafnmctat4xpvwdpzqndynlxt2skhr4fhzh76u0qar2y9hqu74u5h",
+          STZIG: "zig19zqxslng99gw98ku3dyqaqy0c809kwssw7nzhea9x40jwxjugqvs5xaghj",
+          FOMOFEAST: "zig1unc0549k2f0d7mjjyfm94fuz2x53wrx3px0pr55va27grdgmspcqsp4692",
+          PUMP: "zig1k0728vraxvf7gn3dptlnlw5etrwlfd2yagf5u9jnsj9x7wpskds9xhjya",
+          CULTCOIN: "zig1j55nw46crxkm03fjdf3cqx3py5cd32jny685x9c3gftfdt2xlvjs63znce",
+          NFA: "zig1dye3zfsn83jmnxqdplkfmelyszhkve9ae6jfxf5mzgqnuylr0sdq8ng9tv",
+          ZMZIG: "zig15meu4rk66v0wlp59tuewng4rpfvepagpfd8uq9w59rd77ce56dnqftmxn2",
+        };
+        const pairContracts = {
+          "ZIG:BEE": "zig1r50m5lafnmctat4xpvwdpzqndynlxt2skhr4fhzh76u0qar2y9hqu74u5h",
+          "ZIG:ORO": "zig15jqg0hmp9n06q0as7uk3x9xkwr9k3r7yh4ww2uc0hek8zlryrgmsamk4qg",
+          "ZIG:NFA": "zig1dye3zfsn83jmnxqdplkfmelyszhkve9ae6jfxf5mzgqnuylr0sdq8ng9tv",
+          "BEE:ZIG": "zig1r50m5lafnmctat4xpvwdpzqndynlxt2skhr4fhzh76u0qar2y9hqu74u5h",
+          "ORO:ZIG": "zig15jqg0hmp9n06q0as7uk3x9xkwr9k3r7yh4ww2uc0hek8zlryrgmsamk4qg",
+          "NFA:ZIG": "zig1dye3zfsn83jmnxqdplkfmelyszhkve9ae6jfxf5mzgqnuylr0sdq8ng9tv",
+        };
+        const fromDenom = tokenMap[from];
+        const toDenom = tokenMap[to];
+        const amount = Math.floor(parseFloat(amt) * 1_000_000).toString();
+        const pairKey = `${from}:${to}`;
+        const CONTRACT_ADDRESS = pairContracts[pairKey];
+        if (!CONTRACT_ADDRESS) throw new Error("No swap contract for this pair");
+
+        const msgExecute = {
+          swap: {
+            offer_asset: {
+              amount,
+              info: fromDenom.startsWith("zig1")
+                ? { token: { contract_addr: fromDenom } }
+                : { native_token: { denom: fromDenom } },
+            },
+            ask_asset_info: toDenom.startsWith("zig1")
+              ? { token: { contract_addr: toDenom } }
+              : { native_token: { denom: toDenom } },
+          },
+        };
+
+        const result = await client.execute(
+          walletAddress,
+          CONTRACT_ADDRESS,
+          msgExecute,
+          {
+            amount: [{ denom: "uzig", amount: "5000" }],
+            gas: "2000000",
+          },
+          undefined,
+          fromDenom.startsWith("zig1") ? [] : [{ denom: fromDenom, amount }]
+        );
+
+        loader.style.display = "none"; // ✅ Hide loader on success
+
+        const explorerUrl = `https://zigscan.org/tx/${result.transactionHash}`;
+        appendMessage(
+          "Bot",
+          `✅ Swap successful!\n🔁 ${from} → ${to}\n🔗 <a href="${explorerUrl}" target="_blank" style="color:#4e9afc;">View on Explorer</a>`
+        );
+      } catch (err) {
+        loader.style.display = "none"; // ❌ Hide loader on failure too
+        appendMessage("Bot", `❌ Swap failed: ${err.message}`);
+      }
+    }
+
+    function toggleTheme() {
+      document.body.classList.toggle("light");
+    }
+
+    input.addEventListener("keydown", e => {
+      if (e.key === "Enter") sendMessage();
+    });
+  </script>
+</body>
+
+</html>

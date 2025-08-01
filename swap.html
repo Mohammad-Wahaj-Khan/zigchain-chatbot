@@ -1,0 +1,298 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>ZigChatBot</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #121212;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      overflow: hidden;
+      transition: background-color 0.3s;
+    }
+    .light {
+      background: #f5f5f5;
+      color: #000;
+    }
+    .chat-container {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      padding: 20px;
+    }
+    .messages {
+      flex: 1;
+      background: #1e1e1e;
+      padding: 10px;
+      border-radius: 10px;
+      overflow-y: auto;
+    }
+    .light .messages {
+      background: #fff;
+      color: #000;
+    }
+    .input-area {
+      display: flex;
+      margin-top: 10px;
+    }
+    input {
+      flex: 1;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: 1px solid #333;
+    }
+    .light input {
+      border-color: #ddd;
+    }
+    button {
+      cursor: pointer;
+      padding: 10px 15px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+      background: #333;
+      color: #fff;
+    }
+    .light button {
+      background: #ddd;
+      color: #000;
+    }
+    button:hover {
+      opacity: 0.9;
+    }
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .buttons button {
+      flex: 1 1 20%;
+      min-width: 80px;
+    }
+    .typing-effect {
+      display: inline-block;
+      white-space: pre;
+    }
+    .cursor {
+      display: inline-block;
+      background: currentColor;
+      width: 2px;
+      animation: blink 0.7s step-end infinite;
+    }
+    @keyframes blink {
+      50% {
+        opacity: 0;
+      }
+    }
+    .theme-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 35px;
+      height: 35px;
+      background: #333;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .light .theme-toggle {
+      background: #ddd;
+    }
+    .theme-toggle svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+      display: none;
+    }
+    .theme-toggle .moon {
+      display: inline-block;
+    }
+    .light .theme-toggle .moon {
+      display: none;
+    }
+    .light .theme-toggle .sun {
+      display: inline-block;
+    }
+
+    #swapBox {
+      display: none;
+      background: #222;
+      padding: 10px;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+    .light #swapBox {
+      background: #eee;
+      color: #000;
+    }
+    #swapBox select,
+    #swapBox input {
+      width: 100%;
+      margin: 5px 0;
+      padding: 8px;
+      border-radius: 4px;
+      border: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <h2>👋 ZigChatBot</h2>
+    <div class="messages" id="messages"></div>
+    <div class="input-area">
+      <input id="userInput" placeholder="Type message..." />
+      <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <div id="swapBox">
+      <label>From:</label>
+      <select id="fromToken">
+        <option>ZIG</option><option>ORO</option><option>BEE</option><option>STZIG</option>
+        <option>FOMOFEAST</option><option>PUMP</option><option>CULTCOIN</option>
+        <option>NFA</option><option>TEST</option>
+      </select>
+      <label>To:</label>
+      <select id="toToken">
+        <option>ZIG</option><option>ORO</option><option>BEE</option><option>STZIG</option>
+        <option>FOMOFEAST</option><option>PUMP</option><option>CULTCOIN</option>
+        <option>NFA</option><option>TEST</option>
+      </select>
+      <label>Amount:</label>
+      <input type="number" id="swapAmount" placeholder="e.g., 0.01" />
+      <label>Private Key:</label>
+      <input type="password" id="privKey" placeholder="Your private key" />
+      <button onclick="submitSwap()">🚀 Swap Now</button>
+    </div>
+
+    <div class="buttons">
+      
+      <button onclick="quick('quote')">💬 Quote</button>
+      <!-- <button onclick="quick('emoji')">🎲 Emoji</button> -->
+      <button onclick="quick('learn')">📚 Learn</button>
+      <button onclick="quick('real swap')">🔄 Swap</button>
+      <button onclick="quick('time')">⏰ Time</button>
+      <button onclick="quick('stats')">📊 Stats</button>
+      <!-- <button onclick="quick('history')">🧾 History</button> -->
+    </div>
+  </div>
+
+  <div class="theme-toggle" onclick="toggleTheme()">
+    <svg class="moon" viewBox="0 0 24 24">
+      <path d="M21 12.79A9 9 0 0112.21 3a7 7 0 000 14A9 9 0 0121 12.79z" />
+    </svg>
+    <svg class="sun" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="5" />
+      <line x1="12" y1="1" x2="12" y2="3" />
+      <line x1="12" y1="21" x2="12" y2="23" />
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+      <line x1="1" y1="12" x2="3" y2="12" />
+      <line x1="21" y1="12" x2="23" y2="12" />
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+    </svg>
+  </div>
+
+  <script>
+    const input = document.getElementById("userInput");
+    const messages = document.getElementById("messages");
+
+    // const sendS = new Audio("./keyboard.mp3");
+    // const replyS = new Audio("./keyboard.mp3");
+    const typeS = new Audio("./typing8s.mp3");
+    typeS.loop = false;
+
+    function appendMessage(from, text, isTyping = false) {
+      const div = document.createElement("div");
+      div.innerHTML = `<strong>${from}:</strong> <span class="typing-effect">${isTyping ? '<span class="cursor"></span>' : text}</span>`;
+      messages.appendChild(div);
+      messages.scrollTop = messages.scrollHeight;
+      return div.querySelector(".typing-effect");
+    }
+
+    function typeMessage(span, text) {
+      let i = 0;
+      typeS.pause();
+      typeS.currentTime = 0;
+      typeS.play().catch(() => {});
+
+      const interval = setInterval(() => {
+        if (i < text.length) {
+          span.innerHTML = text.slice(0, i + 1) + '<span class="cursor"></span>';
+          messages.scrollTop = messages.scrollHeight;
+          i++;
+        } else {
+          clearInterval(interval);
+          typeS.pause();
+          typeS.currentTime = 0;
+          span.innerText = text;
+          replyS.currentTime = 0;
+          replyS.play().catch(() => {});
+        }
+      }, 60);
+    }
+
+    function sendMessage() {
+      const msg = input.value.trim();
+      if (!msg) return;
+      appendMessage("You", msg);
+      sendS.currentTime = 0;
+      sendS.play().catch(() => {});
+      input.value = "";
+      const botSpan = appendMessage("Bot", "", true);
+
+      fetch("/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: msg })
+      })
+        .then(r => r.json())
+        .then(d => setTimeout(() => typeMessage(botSpan, d.reply), 200))
+        .catch(() => {
+          typeS.pause();
+          typeS.currentTime = 0;
+          appendMessage("Bot", "❌ Error occurred.");
+        });
+    }
+
+    function quick(txt) {
+      input.value = txt;
+      if (txt.includes("swap")) {
+        document.getElementById("swapBox").style.display = "block";
+      } else {
+        document.getElementById("swapBox").style.display = "none";
+        sendMessage();
+      }
+    }
+
+    function submitSwap() {
+      const from = document.getElementById("fromToken").value;
+      const to = document.getElementById("toToken").value;
+      const amt = document.getElementById("swapAmount").value;
+      const pk = document.getElementById("privKey").value;
+      input.value = `swap from ${from} to ${to} amount ${amt} key ${pk}`;
+      document.getElementById("swapBox").style.display = "none";
+      sendMessage();
+    }
+
+    function toggleTheme() {
+      document.body.classList.toggle("light");
+    }
+
+    input.addEventListener("keydown", e => {
+      if (e.key === "Enter") sendMessage();
+    });
+  </script>
+</body>
+</html>
