@@ -113,10 +113,10 @@ app.get("/", (req, res) => {
 
 app.post("/visit", (req, res) => {
   stats.visits.push(Date.now());
-  saveStats();
   io.emit("statsUpdated", stats);
   res.json({ success: true });
 });
+
 
 
 app.post("/chat", async (req, res) => {
@@ -278,31 +278,33 @@ app.post("/chat", async (req, res) => {
     //     undefined,
     //     fromDenom.startsWith("zig1") ? [] : coins(amount, fromDenom)
     //   );
-      if (msg.startsWith("swap from")) {
-        try {
-          const parts = msg.split(" ");
-          const fromSymbol = parts[2].toUpperCase();
-          const toSymbol = parts[4].toUpperCase();
-          const amountZIG = parseFloat(parts[6]);
-          const address = parts[8];
+ if (msg.startsWith("swap from")) {
+  try {
+    const parts = msg.split(" ");
+    const fromSymbol = parts[2].toUpperCase();
+    const toSymbol = parts[4].toUpperCase();
+    const amountZIG = parseFloat(parts[6]);
+    const address = parts[8];
 
-          if (!tokenMap[fromSymbol] || !tokenMap[toSymbol]) {
-            return res.json({ reply: "❌ Unknown token symbol. Check your input." });
-          }
-          if (!address || address.length < 10) {
-            return res.json({ reply: "❌ Invalid wallet address." });
-          }
+    if (!tokenMap[fromSymbol] || !tokenMap[toSymbol]) {
+      return res.json({ reply: "❌ Unknown token symbol. Check your input." });
+    }
+    if (!address || address.length < 10) {
+      return res.json({ reply: "❌ Invalid wallet address." });
+    }
 
-          // Just log stats, reply success (actual swap is done client-side)
-          stats.swaps.push(Date.now());
-          return res.json({
-            reply: `📝 Swap request received!\n🔁 ${fromSymbol} → ${toSymbol}\nAmount: ${amountZIG}\nWallet: ${address}\n\nPlease approve the transaction in your wallet extension.`,
-          });
-        } catch (err) {
-          console.error("Swap failed:", err);
-          return res.json({ reply: `❌ Swap failed: ${err.message}` });
-        }
-      }
+    // ✅ Update stats and emit live
+    stats.swaps.push(Date.now());
+    io.emit("statsUpdated", stats);
+
+    return res.json({
+      reply: `📝 Swap request received!\n🔁 ${fromSymbol} → ${toSymbol}\nAmount: ${amountZIG}\nWallet: ${address}\n\nPlease approve the transaction in your wallet extension.`,
+    });
+  } catch (err) {
+    console.error("Swap failed:", err);
+    return res.json({ reply: `❌ Swap failed: ${err.message}` });
+  }
+}
 
   // fallback
   return res.json({
@@ -310,6 +312,12 @@ app.post("/chat", async (req, res) => {
   });
 });
 
-app.listen(PORT, () => {
+// app.listen(PORT, () => {
+//   console.log(`✅ ZigChatBot running at http://localhost:${PORT}`);
+// });
+
+const http = require("http").createServer(app);
+const io = require("socket.io")(http);
+http.listen(PORT, () => {
   console.log(`✅ ZigChatBot running at http://localhost:${PORT}`);
 });

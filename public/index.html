@@ -265,62 +265,76 @@
   <!-- <script src="https://cdn.jsdelivr.net/npm/@cosmjs/stargate@0.36.2/build/stargate.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@cosmjs/cosmwasm-stargate@0.36.2/build/cosmwasm-stargate.min.js"></script>
    -->
-  <script src="/socket.io/socket.io.js"></script>
-  <script type="module">
-    import { SigningCosmWasmClient } from "https://esm.run/@cosmjs/cosmwasm-stargate";
-    window.SigningCosmWasmClient = SigningCosmWasmClient;
-  </script>
+<div id="statsBox" style="white-space: pre-line; margin-top: 15px; font-size: 16px;"></div>
 
-  <script>
-    const input = document.getElementById("userInput");
-    const messages = document.getElementById("messages");
+<script src="/socket.io/socket.io.js"></script>
+<script type="module">
+  import { SigningCosmWasmClient } from "https://esm.run/@cosmjs/cosmwasm-stargate";
+  window.SigningCosmWasmClient = SigningCosmWasmClient;
+</script>
 
-    const sendS = new Audio("./keyboard.mp3");
-    const replyS = new Audio("./keyboard.mp3");
-    const typeS = new Audio("./typing8s.mp3");
-    typeS.loop = false;
+<script>
+  const input = document.getElementById("userInput");
+  const messages = document.getElementById("messages");
+  const sendS = new Audio("./keyboard.mp3");
+  const replyS = new Audio("./keyboard.mp3");
+  const typeS = new Audio("./typing8s.mp3");
+  typeS.loop = false;
 
-    // ✅ Connect to real-time socket
+  const socket = io();
 
+  socket.on("connect", () => {
+    console.log("✅ Connected to real-time stats");
+  });
 
-    function appendMessage(from, text, isTyping = false) {
-      const div = document.createElement("div");
-      div.innerHTML = `<strong>${from}:</strong> <span class="typing-effect">${isTyping ? '<span class="cursor"></span>' : text}</span>`;
-      messages.appendChild(div);
-      messages.scrollTop = messages.scrollHeight;
-      return div.querySelector(".typing-effect");
-    }
+  socket.on("statsUpdated", (data) => {
+    const now = Date.now();
+    const cutoff = now - 24 * 60 * 60 * 1000;
+    const visits = data.visits.filter(t => t > cutoff).length;
+    const swaps = data.swaps.filter(t => t > cutoff).length;
+    document.getElementById("statsBox").innerText =
+      `📊 Stats (Last 24 hrs):\nVisits: ${visits}\nSwaps: ${swaps}`;
+  });
 
-    function typeMessage(span, text) {
-      let i = 0;
-      typeS.pause();
-      typeS.currentTime = 0;
-      typeS.play().catch(() => { });
-      const interval = setInterval(() => {
-        if (i < text.length) {
-          span.innerHTML = text.slice(0, i + 1) + '<span class="cursor"></span>';
-          messages.scrollTop = messages.scrollHeight;
-          i++;
-        } else {
-          clearInterval(interval);
-          typeS.pause();
-          typeS.currentTime = 0;
-          span.innerText = text;
-          replyS.currentTime = 0;
-          replyS.play().catch(() => { });
-        }
-      }, 60);
-    }
+  function appendMessage(from, text, isTyping = false) {
+    const div = document.createElement("div");
+    div.innerHTML = `<strong>${from}:</strong> <span class="typing-effect">${isTyping ? '<span class="cursor"></span>' : text}</span>`;
+    messages.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+    return div.querySelector(".typing-effect");
+  }
 
-    function sendMessage() {
-      const msg = input.value.trim();
-      if (!msg) return;
-      appendMessage("You", msg);
-      sendS.currentTime = 0;
-      sendS.play().catch(() => { });
-      input.value = "";
-      const botSpan = appendMessage("Bot", "", true);
+  function typeMessage(span, text) {
+    let i = 0;
+    typeS.pause();
+    typeS.currentTime = 0;
+    typeS.play().catch(() => {});
+    const interval = setInterval(() => {
+      if (i < text.length) {
+        span.innerHTML = text.slice(0, i + 1) + '<span class="cursor"></span>';
+        messages.scrollTop = messages.scrollHeight;
+        i++;
+      } else {
+        clearInterval(interval);
+        typeS.pause();
+        typeS.currentTime = 0;
+        span.innerText = text;
+        replyS.currentTime = 0;
+        replyS.play().catch(() => {});
+      }
+    }, 60);
+  }
 
+  function sendMessage() {
+    const msg = input.value.trim();
+    if (!msg) return;
+    appendMessage("You", msg);
+    sendS.currentTime = 0;
+    sendS.play().catch(() => {});
+    input.value = "";
+    const botSpan = appendMessage("Bot", "", true);
+
+    try {
       fetch("/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -333,29 +347,40 @@
           typeS.currentTime = 0;
           appendMessage("Bot", "❌ Error occurred.");
         });
+    } catch (err) {
+      appendMessage("Bot", "❌ Error sending message.");
     }
+  }
 
-    let walletAddress = "";
-    let chainId = "zig-test-2"; // ZigChain testnet
+  let walletAddress = "";
+  let chainId = "zig-test-2";
 
-    async function connectWallet() {
-      if (!window.keplr) {
-        alert("Please install Keplr Wallet extension!");
-        return;
-      }
-      try {
-        await window.keplr.enable(chainId);
-        const offlineSigner = window.getOfflineSigner(chainId);
-        const accounts = await offlineSigner.getAccounts();
-        walletAddress = accounts[0].address;
-        document.getElementById("walletAddr").innerText = "Connected: " + walletAddress;
-        document.getElementById("connectBtn").style.display = "none";
-        document.getElementById("disconnectBtn").style.display = "inline-block";
-      } catch (e) {
-        alert("Wallet connection failed: " + e.message);
-      }
+  async function connectWallet() {
+    if (!window.keplr) {
+      alert("Please install Keplr Wallet extension!");
+      return;
     }
-    const socket = io();
+    try {
+      await window.keplr.enable(chainId);
+      const offlineSigner = window.getOfflineSigner(chainId);
+      const accounts = await offlineSigner.getAccounts();
+      walletAddress = accounts[0].address;
+      document.getElementById("walletAddr").innerText = "Connected: " + walletAddress;
+      document.getElementById("connectBtn").style.display = "none";
+      document.getElementById("disconnectBtn").style.display = "inline-block";
+
+      // ✅ Trigger /visit again after wallet connect
+      await fetch("/visit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({})
+      });
+    } catch (e) {
+      alert("Wallet connection failed: " + e.message);
+    }
+  }
+
+
 
     socket.on("connect", () => {
       console.log("✅ Connected to real-time stats");
@@ -476,7 +501,6 @@ const pairContracts = {
   "ZIG:TATTOO" : "zig1ymjmap5rj3pg2lye654923df3ccz6zgcuku6t5a4nglh6ed42zsqmht0lf",
   "ZIG:KERALA" : "zig1qk4a6qlkfq07nyn9dhv28kpknmfpl2xa9tp7shlqaqtuu3r2kyrstlqfyq",
 };
-        };
         const fromDenom = tokenMap[from];
         const toDenom = tokenMap[to];
         const amount = Math.floor(parseFloat(amt) * 1_000_000).toString();
