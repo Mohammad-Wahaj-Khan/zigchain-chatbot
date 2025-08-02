@@ -85,6 +85,14 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
+app.post("/visit", (req, res) => {
+  stats.visits.push(Date.now());
+  saveStats();
+  io.emit("statsUpdated", stats);
+  res.json({ success: true });
+});
+
+
 app.post("/chat", async (req, res) => {
   const cmd = req.body.message.trim().toLowerCase();
   const msg = req.body.message.trim().toLowerCase();
