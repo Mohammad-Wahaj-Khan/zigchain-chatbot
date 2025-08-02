@@ -31,19 +31,45 @@ const tokenMap = {
   CULTCOIN: "zig1j55nw46crxkm03fjdf3cqx3py5cd32jny685x9c3gftfdt2xlvjs63znce",
   NFA: "zig1dye3zfsn83jmnxqdplkfmelyszhkve9ae6jfxf5mzgqnuylr0sdq8ng9tv",
   ZMZIG: "zig15meu4rk66v0wlp59tuewng4rpfvepagpfd8uq9w59rd77ce56dnqftmxn2",
+  ZIGRWA: "coin.zig1zpnw5dtzzttmgtdjgtywt08wnlyyskpuupy3cfw8mytlslx54j9sgz6w4n.rwaonzig",
+  APEX: "coin.zig1zpnw5dtzzttmgtdjgtywt08wnlyyskpuupy3cfw8mytlslx54j9sgz6w4n.apexgroup",
+  ZWA: "coin.zig1zpnw5dtzzttmgtdjgtywt08wnlyyskpuupy3cfw8mytlslx54j9sgz6w4n.zigwa", 
+  RWA : "coin.zig1zpnw5dtzzttmgtdjgtywt08wnlyyskpuupy3cfw8mytlslx54j9sgz6w4n.rwassets",
+  SHIT: "coin.zig10xvc3tkqrdyym6ep9lrt5005mrwvw6rml66qv7jxwnzlpqfmw7ksq7n7nm.shitcoin",
+  MOON: "coin.zig1zpnw5dtzzttmgtdjgtywt08wnlyyskpuupy3cfw8mytlslx54j9sgz6w4n.moon",
+  FART: "coin.zig1zpnw5dtzzttmgtdjgtywt08wnlyyskpuupy3cfw8mytlslx54j9sgz6w4n.fartcoin",
+  ALPHA: "coin.zig1zpnw5dtzzttmgtdjgtywt08wnlyyskpuupy3cfw8mytlslx54j9sgz6w4n.alpha",
+  ZELLA : "coin.zig1zpnw5dtzzttmgtdjgtywt08wnlyyskpuupy3cfw8mytlslx54j9sgz6w4n.zella",
+  ZMWORLD: "coin.zig1zpnw5dtzzttmgtdjgtywt08wnlyyskpuupy3cfw8mytlslx54j9sgz6w4n.zmworld",
+  WIZZ : "coin.zig1zpnw5dtzzttmgtdjgtywt08wnlyyskpuupy3cfw8mytlslx54j9sgz6w4n.wizz",
+  PONMUDI : "coin.zig1zpnw5dtzzttmgtdjgtywt08wnlyyskpuupy3cfw8mytlslx54j9sgz6w4n.pomi",
+  TATTOO : "coin.zig1zpnw5dtzzttmgtdjgtywt08wnlyyskpuupy3cfw8mytlslx54j9sgz6w4n.tattoo",
+  KERALA : "coin.zig1zpnw5dtzzttmgtdjgtywt08wnlyyskpuupy3cfw8mytlslx54j9sgz6w4n.kera",
 };
 const pairContracts = {
   // Native ZIG to CW20
   "ZIG:BEE": "zig1r50m5lafnmctat4xpvwdpzqndynlxt2skhr4fhzh76u0qar2y9hqu74u5h",
   "ZIG:ORO": "zig15jqg0hmp9n06q0as7uk3x9xkwr9k3r7yh4ww2uc0hek8zlryrgmsamk4qg",
   "ZIG:NFA": "zig1dye3zfsn83jmnxqdplkfmelyszhkve9ae6jfxf5mzgqnuylr0sdq8ng9tv",
-
-  // Add reverse pairs as well if supported:
-  "BEE:ZIG": "zig1r50m5lafnmctat4xpvwdpzqndynlxt2skhr4fhzh76u0qar2y9hqu74u5h",
-  "ORO:ZIG": "zig15jqg0hmp9n06q0as7uk3x9xkwr9k3r7yh4ww2uc0hek8zlryrgmsamk4qg",
-  "NFA:ZIG": "zig1dye3zfsn83jmnxqdplkfmelyszhkve9ae6jfxf5mzgqnuylr0sdq8ng9tv",
-
-  // Add more token-to-token pairs as needed
+ "ZIG:ZMZIG": "zig15meu4rk66v0wlp59tuewng4rpfvepagpfd8uq9w59rd77ce56dnqftmxn2",
+  "ZIG:STIG": "zig19zqxslng99gw98ku3dyqaqy0c809kwssw7nzhea9x40jwxjugqvs5xaghj",
+  "ZIG:FOMOFEAST": "zig1unc0549k2f0d7mjjyfm94fuz2x53wrx3px0pr55va27grdgmspcqsp4692",
+  "ZIG:PUMP": "zig1k0728vraxvf7gn3dptlnlw5etrwlfd2yagf5u9jnsj9x7wpskds9xhjya",
+  "ZIG:CULTCOIN": "zig1j55nw46crxkm03fjdf3cqx3py5cd32jny685x9c3gftfdt2xlvjs63znce",
+  "ZIG:ZIGRWA": "zig1sk7fmq4js7j24rttgflu9jwv4s7yzduzyln85p5mphxunn22f4psna95u6",
+  "ZIG:RWA" : "zig18ptvdr5em20mvezp2rlqw098e675r7lzl78fux9kaz026er7wf6swvzc4q",
+  "ZIG:APEX" : "zig1e5ngrvpruhfuqyjsm3l3hrxmpzernrzmtgzx5cz3s0p7dw60dmgsfuav8v",
+  "ZIG:ZWA" : "zig13jk72eklk6m7nsg623qqdgnkwz5uujyf8p6dru2dgye6jjtet57q7t0tu7",
+  "ZIG:SHIT" : "zig10fl5cjufjfpdhr9x65a8g5cnnj9lcre223fx04hjychukjs6ardqa580ae",
+  "ZIG:MOON" : "zig1eqggyhjj23cl3r7j5apnyg7mxrm639zeh46xq24eeccdh922mxjqq0kd4h",
+  "ZIG:FART" : "zig16hgeu44j5vezxavgjkgqsl2wy77223kqyu8al0vq73te0uh7374q33mqjg",
+  "ZIG:ALPHA" : "zig1c0m3myg8gr7shg4dra7cprvkha5serfsduet2td6zdj9ern82w4qwx06vc",
+  "ZIG:ZELLA" : "zig1c79ty07xnxq3dr9m9mcfnuejzym5uzwgj57600jyyzvy7vkrmd7sxvph7r",
+  "ZIG:ZMWORLD": "zig123pzd2pmqa8qreny4ac3q3t6h0grq3q95gxs8dh3dfyylygkm50qfqp8n2",
+  "ZIG:WIZZ": "zig1ej9x8me3fhtm9hwvu6tngklxp5hqekg3d893vf6ewevlvz55a99qs7mcl0",
+  "ZIG:PONMUDI" : "zig14e2744ejgml7sjgmchlzcyujchmjjkmv6nwy90vfxldd7fhhjtnqud0x9y",
+  "ZIG:TATTOO" : "zig1ymjmap5rj3pg2lye654923df3ccz6zgcuku6t5a4nglh6ed42zsqmht0lf",
+  "ZIG:KERALA" : "zig1qk4a6qlkfq07nyn9dhv28kpknmfpl2xa9tp7shlqaqtuu3r2kyrstlqfyq",
 };
 
 const jokes = [
