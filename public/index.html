@@ -287,14 +287,41 @@
     console.log("✅ Connected to real-time stats");
   });
 
-  socket.on("statsUpdated", (data) => {
+  function updateStatsBox(data) {
     const now = Date.now();
     const cutoff = now - 24 * 60 * 60 * 1000;
     const visits = data.visits.filter(t => t > cutoff).length;
     const swaps = data.swaps.filter(t => t > cutoff).length;
     document.getElementById("statsBox").innerText =
       `📊 Stats (Last 24 hrs):\nVisits: ${visits}\nSwaps: ${swaps}`;
+  }
+
+  // ✅ On socket update — update UI and save to localStorage
+  socket.on("statsUpdated", (data) => {
+    updateStatsBox(data);
+    localStorage.setItem("swapStats", JSON.stringify(data));
   });
+
+  // ✅ On page load — restore from localStorage if available
+  document.addEventListener("DOMContentLoaded", () => {
+    const saved = localStorage.getItem("swapStats");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        updateStatsBox(parsed);
+      } catch (e) {
+        console.warn("Invalid saved stats:", e);
+      }
+    }
+
+    // ✅ Track visit as usual
+    fetch("/visit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({})
+    }).catch(err => console.error("Visit track failed", err));
+  });
+
 
   function appendMessage(from, text, isTyping = false) {
     const div = document.createElement("div");
