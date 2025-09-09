@@ -43,7 +43,7 @@ const tokenMap = {
   ZMWORLD: "coin.zig1zpnw5dtzzttmgtdjgtywt08wnlyyskpuupy3cfw8mytlslx54j9sgz6w4n.zmworld",
   WIZZ : "coin.zig1zpnw5dtzzttmgtdjgtywt08wnlyyskpuupy3cfw8mytlslx54j9sgz6w4n.wizz",
   PONMUDI : "coin.zig1zpnw5dtzzttmgtdjgtywt08wnlyyskpuupy3cfw8mytlslx54j9sgz6w4n.pomi",
-  TATTOO : "coin.zig1zpnw5dtzzttmgtdjgtywt08wnlyyskpuupy3cfw8mytlslx54j9sgz6w4n.tattoo",
+  TATTOO : "coin.zig1zpnw5dtzzttmgtdjgtywt08wnlyyskpuupy3cfw8mytlslx54j9sgz6w4n.tattoo",`
   KERALA : "coin.zig1zpnw5dtzzttmgtdjgtywt08wnlyyskpuupy3cfw8mytlslx54j9sgz6w4n.kera",
 };
 const pairContracts = {
@@ -156,8 +156,9 @@ app.post("/chat", async (req, res) => {
   }
 
   if (cmd === "time") {
-    return res.json({
-      reply: `🕒 Current time: ${new Date().toLocaleTimeString()}`,
+  return res.json({
+    reply: `🕒 ${new Date().toLocaleTimeString("en-PK", {
+      timeZone: "Asia/Karachi",
     });
   }
 
